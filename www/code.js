@@ -1,0 +1,4 @@
+$( document ).ready(function() {
+  $( ".navbar .container-fluid" ).append( '<p><a href="https://github.com/hodamaz/PhenoGraph" target="_blank"><img src = "PhenoGraph_logo1.jpg" title = "Project Home" height = "32px" width = "auto" align="right" style = "padding-top:1px; padding-bottom:1px; margin-top: 10px;  margin-right: 10px; display: flex; justify-content: center !important; align-items: center !important; text-align:center !important" class = "center"</img></a></p> <a align="right" style="padding-top:0px; padding-bottom:0px; padding-right:3px; margin-top: 0px;  margin-right: 0px; display: inline-block; justify-content: right !important; text-align:right !important; float: right;"> <button id="openLand" type="button" class="btn btn-default1 action-button shiny-bound-input" title = "Info"><i class="fas fa-info-circle"></i></button></a>' );
+});
+

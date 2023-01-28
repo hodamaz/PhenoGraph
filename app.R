@@ -1,0 +1,18 @@
+library(dplyr)
+library(magrittr)
+library(shiny)
+library(shinythemes)
+library(tidyverse)
+library(shinyWidgets)
+library(shinyjs)
+library(shinycssloaders)
+library(shinybusy)
+library(kableExtra)
+library(shinyBS)
+library(rsconnect)
+
+source("ui.R")
+source("server.R")
+# runApp(host="0.0.0.0", port=8080)
+
+
