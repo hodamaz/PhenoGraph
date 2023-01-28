@@ -1,0 +1,14 @@
+name: PhenoGraph_Shiny
+title: PhenoGraph_Shiny
+username:
+account: surveyor
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8154909
+bundleId: 6783937
+url: https://surveyor.shinyapps.io/PhenoGraph_Shiny/
+when: 1674905857.2613
+lastSyncTime: 1674905857.2613
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: dependencies.R|LICENSE|README.md
