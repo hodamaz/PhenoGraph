@@ -5,7 +5,7 @@
 **Author:** Hoda Mazaheri, Petar Bursac
 
 
-![Example one - app](www/img1.jpg)
+![Example one - app](www/img1.JPG)
 
 
 ## Project Description
@@ -19,7 +19,7 @@ The goal of this project is the Shiny app with purpose of visualizing main distr
 
 Data processing and analysis is carried out using the R programming language and for that purpose Shiny app is built using Shiny environment.
 
-![Example two - app](www/img2.jpg)
+![Example two - app](www/img2.JPG)
 
 
 ### How to use the Shiny app PhenoGraph?
