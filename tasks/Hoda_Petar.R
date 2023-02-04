@@ -26,7 +26,8 @@ library(ggplot2)
 # Read in data:----
 #Desktop Bernhard:
 
-dat <- read_excel("G11&G12_V4_Petar.xlsx")
+dat <- read_excel("tasks/G11&G12_V4_Petar.xlsx", sheet = "G11&G12_V3") %>% 
+  as.data.frame()
 
 ## Structure of data set:
 str(dat)
@@ -69,7 +70,17 @@ dat$PSvsSS=factor(dat$psvsss,labels=c("SSD","PSD","EHP"))
 
 # Graph 1 (histogram of selected variables + initial statistics) ----
 # First graph by selection of the in/dependent variables 
-hist(dat$var)
-tapply(dat$var,mean,na.rm=T)
+hist(dat$G11Heightcm)
+tapply(dat$G11Heightcm,mean,na.rm=T)
+
+unique(dat$Environment)
+unique(dat$Population)
+unique(dat$ACC)
+unique(dat$SEL)
+
+names(dat)
+
+unique(dat$Block)
+
 
 

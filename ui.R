@@ -119,79 +119,118 @@ shinyUI(
                         
                ), # tabPanel Login
                
+               navbarMenu("", icon = icon("user-circle"),
+                        
+                              tabPanel(list(
+                                
+                                hidden(
+                                  div(id = "lodiv",
+                                      a(href = "", logoutButton(label = "Logout", style="background:#db4040; color:white;"), style="text-align: center;"), style="text-align: center;"
+                                      ))
+                                )) # tabPanel Logout
+                              
+                         
+               ), # tabPanel: Logout
                
                tabPanel(title = span("Data Import", title = "Import the data"), value = "Data Import", icon = icon("file-import"),
                         hidden(
                           div(id = "didiv", 
-                            div(
-                              id = "landingpage",
                               fluidRow(
-                                absolutePanel(id = "controls1", 
-                                              class = "panel panel-default", 
-                                              fixed = TRUE,
-                                              draggable = FALSE, 
-                                              top = "15%", left = "50%", right = "auto", bottom = "auto",
-                                              width = 700, height = "auto",# 550,
-                                              p(""),
-                                              actionButton(inputId = "closePanel", label= "", class = "btn-info", icon = shiny::icon("close", verify_fa = FALSE), style = "background-color: rgba(255, 255, 255, 0.5); color:black; border:rgba(255, 255, 255, 0.5); float:right;"),
-                                              p(""),
-                                              br(),
-                                              br(),
-                                              fluidRow(
-                                                p(""),
-                                                div(class = "containerS",style = "align: center; height: 300px; color: white;",
-                                                    div(strong(
-                                                      h4("PhenoGraph Shiny App", style = "text-align: center; color: white; font-size: 30px;"),
-                                                      p(""),
-                                                      
-                                                      p("PhenoGraph — interactive Shiny web application."),
-                                                      
-                                                      p("This interactive platform is used for data import, modeling and selection."),
-                                                      p("The goal is, to find relations among the groups using Multiple Linear Regression (MLR)."),
-                                                      
-                                                      p(""),
-                                                      p("Need help using PhenoGraph Shiny app or have feedback? Email to Hoda Mazaheri:", a(href = "mailto: adohmk@gmail.com", "adohmk@gmail.com")),
-                                                      style = "text-align: left;"
-                                                      
-                                                    ))
-                                                )
-                                              ),
-                                              br(),
-                                              #div(img(src = "PhenoGraph_logo1.jpg", style = "align: center; height: 200px; width: 200px;"), style="text-align: center;"),
-                                              div(a(href = 'mailto: adohmk@gmail.com/', target="_blank", img(src = "PhenoGraph_logo1.jpg", style = "align: center; height:200px;")), style="text-align: center;")
-                                )  # absolutePanel
-                              ) # fluidRow
-                            ) # div
-                          ) # div: ddiv
-                          ) # hidden
+                                
+                                column(width = 3,
+                                       div(id = "conditionalPanel0", class = "divClassSideBar",
+                                           # p(""),
+                                           # hr(),
+                                           h4("Data upload: ", style = "color: #bc2929; font-size: 16px;"),
+                                           splitLayout(cellWidths = c("90%", "10%"),
+                                                       uiOutput(outputId = "file_upload", inline = TRUE), 
+                                                       actionButton(inputId = "reset_file_upload", label= "", class = "btn-danger shiny-bound-input", icon = shiny::icon("times-circle"), style='padding:4px; font-size:80%; margin-top:5px')),
+                                           
+                                           actionButton(inputId = "upload_input_data", label= "Upload data now", class = "btn-danger btn-block", icon = shiny::icon("file-import")),
+                                           p(""),
+                                           hr(),
+                                           actionButton(inputId = "go_to_data_selection", label= "Data selection", class = "btn-info btn-block", icon = shiny::icon("arrow-circle-right"))
+                                           
+                                       ) # divClassSideBar
+                                ), # column 3
+                                
+                                
+                                column(width = 9,
+                                       
+                                       DT::dataTableOutput("table_data") %>% withSpinner(color="#bc2929") # , style = "height:500px; overflow-y: scroll;"  
+                                       
+                                ) # column 9
+                                
+                              ), # fluidRow
                         
+                              div(
+                                id = "landingpage",
+                                fluidRow(
+                                  absolutePanel(id = "controls1", 
+                                                class = "panel panel-default", 
+                                                fixed = TRUE,
+                                                draggable = FALSE, 
+                                                top = "15%", left = "50%", right = "auto", bottom = "auto",
+                                                width = 700, height = "auto",# 550,
+                                                p(""),
+                                                actionButton(inputId = "closePanel", label= "", class = "btn-info", icon = shiny::icon("close", verify_fa = FALSE), style = "background-color: rgba(255, 255, 255, 0.5); color:black; border:rgba(255, 255, 255, 0.5); float:right;"),
+                                                p(""),
+                                                br(),
+                                                br(),
+                                                fluidRow(
+                                                  p(""),
+                                                  div(class = "containerS",style = "align: center; height: 300px; color: white;",
+                                                      div(strong(
+                                                        h4("PhenoGraph Shiny App", style = "text-align: center; color: white; font-size: 30px;"),
+                                                        p(""),
+                                                        
+                                                        p("PhenoGraph — interactive Shiny web application."),
+                                                        
+                                                        p("This interactive platform is used for data import, modeling and selection."),
+                                                        p("The goal is, to find relations among the groups using Multiple Linear Regression (MLR)."),
+                                                        
+                                                        p(""),
+                                                        p("Need help using PhenoGraph Shiny app or have feedback? Email to Hoda Mazaheri:", a(href = "mailto: adohmk@gmail.com", "adohmk@gmail.com")),
+                                                        style = "text-align: left;"
+                                                        
+                                                      ))
+                                                  )
+                                                ),
+                                                br(),
+                                                #div(img(src = "PhenoGraph_logo1.jpg", style = "align: center; height: 200px; width: 200px;"), style="text-align: center;"),
+                                                div(a(href = 'mailto: adohmk@gmail.com/', target="_blank", img(src = "PhenoGraph_logo1.jpg", style = "align: center; height:200px;")), style="text-align: center;")
+                                  )  # absolutePanel
+                                ) # fluidRow
+                              ) # div
+                          ) # div: ddiv
+                        ), # hidden
                ), # tabPanel: Data Import
                
                tabPanel(title = span("Model Selection", title = "Select the model"), value = "Model Selection", icon = icon("microchip"),
                         hidden(
-                          div(id = "msdiv", 
-                              sidebarLayout(
-                                sidebarPanel(
-                                  
-                                  conditionalPanel(
-                                    'input.dataset === "mtcars"',
-                                    helpText("Click the column header to sort a column.")
-                                  ),
-                                  conditionalPanel(
-                                    'input.dataset === "iris"',
-                                    helpText("Display 5 records by default.")
-                                  )
-                                ),
-                                
-                                mainPanel(
-                                  tabsetPanel(
-                                    id = 'dataset',
-                                    tabPanel("mtcars", DT::dataTableOutput("mytable2") %>% withSpinner(color="#bc2929")),
-                                    tabPanel("iris", DT::dataTableOutput("mytable3") %>% withSpinner(color="#bc2929"))
-                                  )
-                                )
-                                
-                              ) # sidebarLayout
+                          div(id = "msdiv"
+                              # sidebarLayout(
+                              #   sidebarPanel(
+                              #     
+                              #     conditionalPanel(
+                              #       'input.dataset === "mtcars"',
+                              #       helpText("Click the column header to sort a column.")
+                              #     ),
+                              #     conditionalPanel(
+                              #       'input.dataset === "iris"',
+                              #       helpText("Display 5 records by default.")
+                              #     )
+                              #   ),
+                              #   
+                              #   mainPanel(
+                              #     tabsetPanel(
+                              #       id = 'dataset',
+                              #       tabPanel("mtcars", DT::dataTableOutput("mytable2") %>% withSpinner(color="#bc2929")),
+                              #       tabPanel("iris", DT::dataTableOutput("mytable3") %>% withSpinner(color="#bc2929"))
+                              #     )
+                              #   )
+                              #   
+                              # ) # sidebarLayout
                           )
                         )
                ), # tabPanel: Model Selection
@@ -199,6 +238,135 @@ shinyUI(
                tabPanel(title = span("Data Selection", title = "Select the data"), value = "Data Selection", icon = icon("database"),
                         hidden(
                           div(id = "dsdiv", 
+                              
+                              fluidRow(
+                                
+                                column(width = 4,
+                                       div(id = "conditionalPanel0", class = "divClassSideBar",
+                                           # p(""),
+                                           # hr(),
+                                           h4("Data Selection: ", style = "color: #bc2929; font-size: 16px;"),
+                                           p(""),
+                                           bsCollapse(id = "collapseExample", open = "1. Dependent",
+                                                      
+                                                      bsCollapsePanel("1. Dependent", style = "danger",
+                                                                      
+                                                                      selectizeInput(
+                                                                        inputId = 'dep_factor',
+                                                                        label = "Dependent factor: ",
+                                                                        choices = NULL,  
+                                                                        multiple = T,
+                                                                        options = list(
+                                                                          placeholder = 'Please select Measurement',
+                                                                          onInitialize = I('function() { this.setValue(""); }')
+                                                                        ))
+                                                                      
+                                                                      
+                                                      ),
+                                                      
+                                                      bsCollapsePanel("2. Independent", style = "danger",
+                                                                      selectizeInput(
+                                                                        inputId = 'acc_factor',
+                                                                        label = "Select Accession: ",
+                                                                        choices = NULL,  
+                                                                        multiple = T,
+                                                                        options = list(
+                                                                          placeholder = 'Please select Accession',
+                                                                          onInitialize = I('function() { this.setValue(""); }')
+                                                                        )),
+                                                                      noUiSliderInput(
+                                                                        inputId = "block_factor", 
+                                                                        label = "Block / tray: ",
+                                                                        min = 1, max = 20, value = 3, step = 1,
+                                                                        width = "90%",
+                                                                        color = "#bc2929", 
+                                                                        tooltips = TRUE, 
+                                                                        format = wNumbFormat(decimals = 0)
+                                                                        ),
+                                                                      selectizeInput(
+                                                                        inputId = 'env_factor',
+                                                                        label = "Select Environment: ",
+                                                                        choices = NULL,  
+                                                                        multiple = T,
+                                                                        options = list(
+                                                                          placeholder = 'Please select Environment',
+                                                                          onInitialize = I('function() { this.setValue(""); }')
+                                                                        )),
+                                                                      selectizeInput(
+                                                                        inputId = 'pol_factor',
+                                                                        label = "Select Population: ",
+                                                                        choices = NULL,  
+                                                                        multiple = T,
+                                                                        options = list(
+                                                                          placeholder = 'Please select Population',
+                                                                          onInitialize = I('function() { this.setValue(""); }')
+                                                                        ))         
+                                                                      
+                                                      ), 
+                                                      bsCollapsePanel("3. Independent", style = "danger",
+                                                                      selectizeInput(
+                                                                        inputId = 'sel_factor',
+                                                                        label = "Select SEL: ",
+                                                                        choices = NULL,  
+                                                                        multiple = T,
+                                                                        options = list(
+                                                                          placeholder = 'Please select SEL',
+                                                                          onInitialize = I('function() { this.setValue(""); }')
+                                                                        )),
+                                                                      selectizeInput(
+                                                                        inputId = 'svs_factor',
+                                                                        label = "Select SOILvsSALT: ",
+                                                                        choices = NULL,  
+                                                                        multiple = T,
+                                                                        options = list(
+                                                                          placeholder = 'Please select SOILvsSALT)',
+                                                                          onInitialize = I('function() { this.setValue(""); }')
+                                                                        )),
+                                                                      selectizeInput(
+                                                                        inputId = 'cva_factor',
+                                                                        label = "Select CONvsANC: ",
+                                                                        choices = NULL,  
+                                                                        multiple = T,
+                                                                        options = list(
+                                                                          placeholder = 'Please select CONvsANC',
+                                                                          onInitialize = I('function() { this.setValue(""); }')
+                                                                        )),
+                                                                      selectizeInput(
+                                                                        inputId = 'avc_factor',
+                                                                        label = "Select AvsC: ",
+                                                                        choices = NULL,  
+                                                                        multiple = T,
+                                                                        options = list(
+                                                                          placeholder = 'Please select AvsC)',
+                                                                          onInitialize = I('function() { this.setValue(""); }')
+                                                                        )),
+                                                                      selectizeInput(
+                                                                        inputId = 'pvs_factor',
+                                                                        label = "Select PSvsSS: ",
+                                                                        choices = NULL,  
+                                                                        multiple = T,
+                                                                        options = list(
+                                                                          placeholder = 'Please select PSvsSS',
+                                                                          onInitialize = I('function() { this.setValue(""); }')
+                                                                        ))
+                                                                                 
+                                                      )
+                                           ) # bsCollapse
+                                       
+                                       ) # divClassSideBar
+                                           
+                                       
+                                ), # column 3
+                                
+                                
+                                column(width = 8,
+                                       
+                                       
+                                ) # column 9
+                                
+                              ), # fluidRow
+                              
+                              
                               
                           )
                         )
