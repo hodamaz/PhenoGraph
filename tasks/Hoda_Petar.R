@@ -82,5 +82,49 @@ names(dat)
 
 unique(dat$Block)
 
+library(tidyr)
+extract_numeric(dat$Block)
+
+dat %<>% dplyr::mutate(Block_num = extract_numeric(Block))
+
+data <- dat
+select_hist_var <- "G11Heightcm"
+cc <- select_hist_var
 
 
+input <- list()
+
+input$acc_factor <- NULL
+input$svs_factor <- NULL
+input$cva_factor <- NULL
+input$pvs_factor <- NULL
+input$dep_factor <- NULL
+input$pol_factor <- NULL
+input$env_factor <- NULL
+input$avc_factor <- NULL
+
+# if(is.null(input$acc_factor) & is.null(input$svs_factor) & is.null(input$cva_factor) & is.null(input$pvs_factor) & is.null(input$dep_factor) & is.null(input$pol_factor) & is.null(input$env_factor) & is.null(input$avc_factor)){
+#   data <- data
+# } else{
+  data %<>% dplyr::filter(ACC %in% input$acc_factor | Environment %in% input$env_factor | Population %in% input$pol_factor | SEL %in% input$sel_factor | SOILvsSALT %in% input$svs_factor | CONvsANC %in% input$cva_factor | AvsC %in% input$avc_factor | PSvsSS %in% input$pvs_factor) %>%
+    dplyr::filter(Block_num == as.numeric(input$block_factor))
+# }
+
+
+hist <- ggplot(data = data, aes_string(cc)) + 
+  geom_histogram(binwidth = 0.05,
+                 col="red", 
+                 aes(y = ..density..,
+                     fill = ..count..)) +
+  scale_fill_gradient("Count", low = "blue", high = "red")+
+  stat_function(fun = dnorm,
+                color = "orange",
+                size = 1.5,
+                args = list(mean = mean(as.numeric(data[cc][,]), na.rm = TRUE), sd = sd(as.numeric(data[cc][,]), na.rm = TRUE)))+
+  # geom_text(x = min(as.numeric(data[cc][,])) + sd(as.numeric(data[cc][,]), na.rm = TRUE), y =  sd(as.numeric(data[cc][,]), na.rm = TRUE) * 3, label = paste0("Mean: ", mean(as.numeric(data[cc][,]), na.rm = TRUE), "\nSD: ", sd(as.numeric(data[cc][,]), na.rm = TRUE))) +
+  labs(title=paste("Variable Histogram: ","Dependent - ", cc, sep = ""), 
+       subtitle = paste0("Mean: ", mean(as.numeric(data[cc][,]), na.rm = TRUE), "\nSD: ", sd(as.numeric(data[cc][,]), na.rm = TRUE))) +
+  labs(x="Sample values", y="Density") +
+  theme_bw()
+
+hist

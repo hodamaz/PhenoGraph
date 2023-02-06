@@ -206,35 +206,6 @@ shinyUI(
                         ), # hidden
                ), # tabPanel: Data Import
                
-               tabPanel(title = span("Model Selection", title = "Select the model"), value = "Model Selection", icon = icon("microchip"),
-                        hidden(
-                          div(id = "msdiv"
-                              # sidebarLayout(
-                              #   sidebarPanel(
-                              #     
-                              #     conditionalPanel(
-                              #       'input.dataset === "mtcars"',
-                              #       helpText("Click the column header to sort a column.")
-                              #     ),
-                              #     conditionalPanel(
-                              #       'input.dataset === "iris"',
-                              #       helpText("Display 5 records by default.")
-                              #     )
-                              #   ),
-                              #   
-                              #   mainPanel(
-                              #     tabsetPanel(
-                              #       id = 'dataset',
-                              #       tabPanel("mtcars", DT::dataTableOutput("mytable2") %>% withSpinner(color="#bc2929")),
-                              #       tabPanel("iris", DT::dataTableOutput("mytable3") %>% withSpinner(color="#bc2929"))
-                              #     )
-                              #   )
-                              #   
-                              # ) # sidebarLayout
-                          )
-                        )
-               ), # tabPanel: Model Selection
-               
                tabPanel(title = span("Data Selection", title = "Select the data"), value = "Data Selection", icon = icon("database"),
                         hidden(
                           div(id = "dsdiv", 
@@ -360,7 +331,23 @@ shinyUI(
                                 
                                 
                                 column(width = 8,
-                                       
+                                       tabsetPanel(
+                                         tabPanel("Histograms",
+                                                  p(""),
+                                                  fluidRow(
+                                                    column(width = 3,
+                                                           uiOutput(outputId = "hist_select_var")
+                                                           ), 
+                                                    column(width = 9,
+                                                           plotOutput(outputId = "hist_var") %>% withSpinner(color="#bc2929")
+                                                           )
+                                                    )
+                                                  ), 
+                                         tabPanel("Data summary"
+                                                  
+                                                  )
+                                         
+                                       ) # tabsetPanel
                                        
                                 ) # column 9
                                 
@@ -372,6 +359,18 @@ shinyUI(
                         )
                ), # tabPanel: Data Selection
                
+               tabPanel(title = span("Model Selection", title = "Select the model"), value = "Model Selection", icon = icon("microchip"),
+                        hidden(
+                          div(id = "msdiv"
+                              
+                              
+                              
+                              
+                              
+                              
+                          )
+                        )
+               ), # tabPanel: Model Selection
                
                tabPanel(title = span("About", title = "About"), value = "About", icon = icon("address-card"),
                         

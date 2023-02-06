@@ -141,6 +141,8 @@ shinyServer(function(input, output, session) {
     xlsx_data$psvsss=as.numeric(xlsx_data$PSDvsSSD>1)*0+as.numeric(xlsx_data$PSDvsSSD==1)*1+as.numeric(xlsx_data$PSDvsSSD==0)*2
     xlsx_data$PSvsSS=factor(xlsx_data$psvsss,labels=c("SSD","PSD","EHP"))
     
+    xlsx_data %<>% dplyr::mutate(Block_num = extract_numeric(Block))
+    
     xlsx_data
     
   })
@@ -248,19 +250,104 @@ shinyServer(function(input, output, session) {
   })
   
   
+  # Histograms - based on specified dependent variable
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
+  output$hist_select_var <- renderUI({
+    cols_n <- input$dep_factor
+    
+    selectizeInput(inputId = "select_hist_var", 
+                   label = "Dependent variable: ", 
+                   multiple = F,
+                   choices = cols_n,  
+                   selected = "",
+                   options = list(
+                     placeholder = 'Please select one of Measurments',
+                     onInitialize = I('function() { this.setValue(""); }')))# cols_n[1])
+  })
   
   
-  # # Example
-  # output$mytable2 <- DT::renderDataTable({
-  #   DT::datatable(mtcars, options = list(orderClasses = TRUE))
-  # })
-  # 
-  # output$mytable3 <- DT::renderDataTable({
-  #   DT::datatable(iris, options = list(lengthMenu = c(5, 30, 50), pageLength = 5))
-  # })
-  # 
+  
+  dataInput <- reactiveValues(data = NULL)
+  
+  observeEvent(c( input$select_hist_var,
+                 input$acc_factor, 
+                 input$svs_factor, 
+                 input$cva_factor, 
+                 input$pvs_factor,
+                 input$dep_factor,
+                 input$pol_factor,
+                 input$env_factor,
+                 input$avc_factor,
+                 input$block_factor),{
+    
+    req(data_xlsx())
+    
+    # input$acc_factor
+    # input$svs_factor
+    # input$cva_factor
+    # input$pvs_factor
+    # input$dep_factor
+    # input$pol_factor
+    # input$env_factor
+    # input$avc_factor
+  
+    data <- data_xlsx()
+    
+    data %<>% dplyr::filter(Block_num == as.numeric(input$block_factor))
+    
+    if(is.null(input$acc_factor) & is.null(input$svs_factor) & is.null(input$cva_factor) & is.null(input$pvs_factor) & is.null(input$dep_factor) & is.null(input$pol_factor) & is.null(input$env_factor) & is.null(input$avc_factor)){
+      data <- data
+      
+    } else{
+      data %<>% dplyr::filter(ACC %in% input$acc_factor | Environment %in% input$env_factor | Population %in% input$pol_factor | SEL %in% input$sel_factor | SOILvsSALT %in% input$svs_factor | CONvsANC %in% input$cva_factor | AvsC %in% input$avc_factor | PSvsSS %in% input$pvs_factor) %>%
+        dplyr::filter(Block_num == as.numeric(input$block_factor))
+      
+    }
+    
+    if(dim(data)[1] == 0){
+      data <- data_xlsx() %>% dplyr::filter(Block_num == as.numeric(input$block_factor))
+    }
+    
+    dataInput$data <- data
+  })
+  
+  
+  
+  output$hist_var <- renderPlot({
+    req(input$select_hist_var)
+    req(dataInput$data)
+    
+    data <- dataInput$data
+    
+    cc <- input$select_hist_var
+    
+    print(cc)
+    
+    hist <- ggplot(data = data, aes_string(cc)) + 
+      geom_histogram(binwidth = 0.05,
+                     col="red", 
+                     aes(y = ..density..,
+                         fill = ..count..)) +
+      scale_fill_gradient("Count", low = "blue", high = "red")+
+      stat_function(fun = dnorm,
+                    color = "orange",
+                    size = 1.5,
+                    args = list(mean = mean(as.numeric(data[cc][,]), na.rm = TRUE), sd = sd(as.numeric(data[cc][,]), na.rm = TRUE)))+
+      # geom_text(x = min(as.numeric(data[cc][,])) + sd(as.numeric(data[cc][,]), na.rm = TRUE), y =  sd(as.numeric(data[cc][,]), na.rm = TRUE) * 3, label = paste0("Mean: ", mean(as.numeric(data[cc][,]), na.rm = TRUE), "\nSD: ", sd(as.numeric(data[cc][,]), na.rm = TRUE))) +
+      labs(title=paste("Variable Histogram: ","Dependent - ", cc, sep = ""), 
+           subtitle = paste0("Mean: ", round(mean(as.numeric(data[cc][,]), na.rm = TRUE), 2), "\nSD: ", round(sd(as.numeric(data[cc][,]), na.rm = TRUE), 2))) +
+      labs(x="Sample values", y="Density") +
+      theme_bw()
+    
+    return(hist)
+  },
+  width = "auto",
+  height = "auto")
+  
+  
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
   
     
 }) # shinyServer
