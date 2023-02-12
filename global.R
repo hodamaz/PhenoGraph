@@ -10,8 +10,20 @@ library(shinybusy)
 library(kableExtra)
 library(shinyBS)
 library(rsconnect)
-
-
+library(auth0)
+library(DT)
+library(readxl)
+library(kableExtra)
+library(knitr)
 
 user = "admin"
 pass = "admin"
+
+indep_names <- c("ACC", 
+                 "Environment", 
+                 "Population",
+                 "SEL", 
+                 "SOILvsSALT",
+                 "CONvsANC", 
+                 "AvsC",
+                 "PSvsSS")

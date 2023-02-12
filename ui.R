@@ -125,7 +125,7 @@ shinyUI(
                                 
                                 hidden(
                                   div(id = "lodiv",
-                                      a(href = "", logoutButton(label = "Logout", style="background:#db4040; color:white;"), style="text-align: center;"), style="text-align: center;"
+                                      a(href = "", auth0::logoutButton(label = "Logout", style="background:#db4040; color:white;"), style="text-align: center;"), style="text-align: center;"
                                       ))
                                 )) # tabPanel Logout
                               
@@ -156,8 +156,30 @@ shinyUI(
                                 
                                 
                                 column(width = 9,
+                                       tabsetPanel(
+                                         tabPanel("Preview",
+                                                  div(id = "pdiv", style = "background:white;",
+                                                      # h4("Data preview: ", style = "color: #bc2929; font-size: 18px;"),
+                                                      # tableOutput("table_preview"),
+                                                      # p("10 of 960 rows shown. See Data-tab for details."),
+                                                      
+                                                      # hr(),
+                                                      
+                                                      h4("Data Description: ", style = "color: #bc2929; font-size: 18px;"),
+                                                      
+                                                      p("A dataset containing the phenotypic data and other attributes of a sample of certain number of individuals. The variables are as follows:"),
+                                                      p(""),
+                                                      tableOutput("table_desc")
+                                                  
+                                                  )
+                                                  ),
+                                         tabPanel("Data",
+                                                  
+                                                  DT::dataTableOutput("table_data") %>% withSpinner(color="#bc2929") # , style = "height:500px; overflow-y: scroll;"
+                                                  
+                                                  )
+                                         )
                                        
-                                       DT::dataTableOutput("table_data") %>% withSpinner(color="#bc2929") # , style = "height:500px; overflow-y: scroll;"  
                                        
                                 ) # column 9
                                 
@@ -218,29 +240,38 @@ shinyUI(
                                            # hr(),
                                            h4("Data Selection: ", style = "color: #bc2929; font-size: 16px;"),
                                            p(""),
-                                           bsCollapse(id = "collapseExample", open = "1. Dependent",
+                                           bsCollapse(id = "collapseExample", open = "1. Dependent and independent selection",
                                                       
-                                                      bsCollapsePanel("1. Dependent", style = "danger",
+                                                      bsCollapsePanel("1. Dependent and independent selection", style = "danger",
                                                                       
                                                                       selectizeInput(
                                                                         inputId = 'dep_factor',
                                                                         label = "Dependent factor: ",
                                                                         choices = NULL,  
-                                                                        multiple = T,
+                                                                        multiple = F,
                                                                         options = list(
                                                                           placeholder = 'Please select Measurement',
                                                                           onInitialize = I('function() { this.setValue(""); }')
-                                                                        ))
+                                                                        )),
                                                                       
+                                                                      selectizeInput(
+                                                                        inputId = 'indep_factor',
+                                                                        label = "Independent factor: ",
+                                                                        choices = NULL,  
+                                                                        multiple = T,
+                                                                        options = list(
+                                                                          placeholder = 'Please select Independent Measurement',
+                                                                          onInitialize = I('function() { this.setValue(""); }')
+                                                                        ))
                                                                       
                                                       ),
                                                       
-                                                      bsCollapsePanel("2. Independent", style = "danger",
+                                                      bsCollapsePanel("2. Filter with Independent Measurement", style = "danger",
                                                                       selectizeInput(
                                                                         inputId = 'acc_factor',
                                                                         label = "Select Accession: ",
                                                                         choices = NULL,  
-                                                                        multiple = T,
+                                                                        multiple = F,
                                                                         options = list(
                                                                           placeholder = 'Please select Accession',
                                                                           onInitialize = I('function() { this.setValue(""); }')
@@ -258,7 +289,7 @@ shinyUI(
                                                                         inputId = 'env_factor',
                                                                         label = "Select Environment: ",
                                                                         choices = NULL,  
-                                                                        multiple = T,
+                                                                        multiple = F,
                                                                         options = list(
                                                                           placeholder = 'Please select Environment',
                                                                           onInitialize = I('function() { this.setValue(""); }')
@@ -267,61 +298,61 @@ shinyUI(
                                                                         inputId = 'pol_factor',
                                                                         label = "Select Population: ",
                                                                         choices = NULL,  
-                                                                        multiple = T,
+                                                                        multiple = F,
                                                                         options = list(
                                                                           placeholder = 'Please select Population',
                                                                           onInitialize = I('function() { this.setValue(""); }')
                                                                         ))         
                                                                       
-                                                      ), 
-                                                      bsCollapsePanel("3. Independent", style = "danger",
-                                                                      selectizeInput(
-                                                                        inputId = 'sel_factor',
-                                                                        label = "Select SEL: ",
-                                                                        choices = NULL,  
-                                                                        multiple = T,
-                                                                        options = list(
-                                                                          placeholder = 'Please select SEL',
-                                                                          onInitialize = I('function() { this.setValue(""); }')
-                                                                        )),
-                                                                      selectizeInput(
-                                                                        inputId = 'svs_factor',
-                                                                        label = "Select SOILvsSALT: ",
-                                                                        choices = NULL,  
-                                                                        multiple = T,
-                                                                        options = list(
-                                                                          placeholder = 'Please select SOILvsSALT)',
-                                                                          onInitialize = I('function() { this.setValue(""); }')
-                                                                        )),
-                                                                      selectizeInput(
-                                                                        inputId = 'cva_factor',
-                                                                        label = "Select CONvsANC: ",
-                                                                        choices = NULL,  
-                                                                        multiple = T,
-                                                                        options = list(
-                                                                          placeholder = 'Please select CONvsANC',
-                                                                          onInitialize = I('function() { this.setValue(""); }')
-                                                                        )),
-                                                                      selectizeInput(
-                                                                        inputId = 'avc_factor',
-                                                                        label = "Select AvsC: ",
-                                                                        choices = NULL,  
-                                                                        multiple = T,
-                                                                        options = list(
-                                                                          placeholder = 'Please select AvsC)',
-                                                                          onInitialize = I('function() { this.setValue(""); }')
-                                                                        )),
-                                                                      selectizeInput(
-                                                                        inputId = 'pvs_factor',
-                                                                        label = "Select PSvsSS: ",
-                                                                        choices = NULL,  
-                                                                        multiple = T,
-                                                                        options = list(
-                                                                          placeholder = 'Please select PSvsSS',
-                                                                          onInitialize = I('function() { this.setValue(""); }')
-                                                                        ))
-                                                                                 
-                                                      )
+                                                      )#, 
+                                                      # bsCollapsePanel("3. Independent", style = "danger",
+                                                      #                 selectizeInput(
+                                                      #                   inputId = 'sel_factor',
+                                                      #                   label = "Select SEL: ",
+                                                      #                   choices = NULL,  
+                                                      #                   multiple = T,
+                                                      #                   options = list(
+                                                      #                     placeholder = 'Please select SEL',
+                                                      #                     onInitialize = I('function() { this.setValue(""); }')
+                                                      #                   )),
+                                                      #                 selectizeInput(
+                                                      #                   inputId = 'svs_factor',
+                                                      #                   label = "Select SOILvsSALT: ",
+                                                      #                   choices = NULL,  
+                                                      #                   multiple = T,
+                                                      #                   options = list(
+                                                      #                     placeholder = 'Please select SOILvsSALT)',
+                                                      #                     onInitialize = I('function() { this.setValue(""); }')
+                                                      #                   )),
+                                                      #                 selectizeInput(
+                                                      #                   inputId = 'cva_factor',
+                                                      #                   label = "Select CONvsANC: ",
+                                                      #                   choices = NULL,  
+                                                      #                   multiple = T,
+                                                      #                   options = list(
+                                                      #                     placeholder = 'Please select CONvsANC',
+                                                      #                     onInitialize = I('function() { this.setValue(""); }')
+                                                      #                   )),
+                                                      #                 selectizeInput(
+                                                      #                   inputId = 'avc_factor',
+                                                      #                   label = "Select AvsC: ",
+                                                      #                   choices = NULL,  
+                                                      #                   multiple = T,
+                                                      #                   options = list(
+                                                      #                     placeholder = 'Please select AvsC)',
+                                                      #                     onInitialize = I('function() { this.setValue(""); }')
+                                                      #                   )),
+                                                      #                 selectizeInput(
+                                                      #                   inputId = 'pvs_factor',
+                                                      #                   label = "Select PSvsSS: ",
+                                                      #                   choices = NULL,  
+                                                      #                   multiple = T,
+                                                      #                   options = list(
+                                                      #                     placeholder = 'Please select PSvsSS',
+                                                      #                     onInitialize = I('function() { this.setValue(""); }')
+                                                      #                   ))
+                                                      #                            
+                                                      # )
                                            ) # bsCollapse
                                        
                                        ) # divClassSideBar
@@ -335,10 +366,10 @@ shinyUI(
                                          tabPanel("Histograms",
                                                   p(""),
                                                   fluidRow(
-                                                    column(width = 3,
-                                                           uiOutput(outputId = "hist_select_var")
-                                                           ), 
-                                                    column(width = 9,
+                                                    # column(width = 3,
+                                                    #        uiOutput(outputId = "hist_select_var")
+                                                    #        ), 
+                                                    column(width = 12,
                                                            plotOutput(outputId = "hist_var") %>% withSpinner(color="#bc2929")
                                                            )
                                                     )

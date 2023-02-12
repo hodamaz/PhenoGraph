@@ -13,6 +13,8 @@ library(rsconnect)
 library(auth0)
 library(DT)
 library(readxl)
+library(kableExtra)
+library(knitr)
 
 source("ui.R")
 source("server.R")

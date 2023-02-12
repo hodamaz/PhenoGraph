@@ -120,6 +120,7 @@ shinyServer(function(input, output, session) {
   # Read xlsx with data
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
+  # Raw data table
   data_xlsx <- eventReactive(input$upload_input_data,{
     req(input$input_xlsx)
     inFile <- input$input_xlsx
@@ -146,6 +147,46 @@ shinyServer(function(input, output, session) {
     xlsx_data
     
   })
+  
+  # Description sheet
+  data_preview <- eventReactive(input$upload_input_data,{
+    req(input$input_xlsx)
+    inFile <- input$input_xlsx
+    if (is.null(inFile))
+      return(NULL)
+    
+    xlsx_data <- readxl::read_excel(inFile$datapath, sheet = "Description") %>% 
+      as.data.frame()
+    
+    xlsx_data
+    
+  })
+  
+  
+  # Preview Tab
+  # --------------------------
+  
+  
+  # output$table_preview <- function() {
+  #   req(data_xlsx())
+  #   kbl(data_xlsx()[1:10, ]) %>%
+  #     # knitr::kable("html") %>%
+  #     kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F)
+  #     # kable_styling("striped", full_width = F) %>%
+  #     # add_header_above(c(" ", "Group 1" = 5, "Group 2" = 6))
+  # }
+  # 
+  
+  output$table_desc <- function() {
+    req(data_preview())
+    
+    kbl(data_preview()) %>%
+      # knitr::kable("html") %>%
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) # , full_width = F
+  }
+  
+  # Data Tab
+  # --------------------------
   
   output$table_data <- DT::renderDataTable({
     DT::datatable(
@@ -174,15 +215,26 @@ shinyServer(function(input, output, session) {
     updateSelectizeInput(session,
                          inputId = 'dep_factor',
                          choices = names(data_xlsx())[9:15],
+                         selected = "",
                          options = list(
                            placeholder = 'Please select Measurement',
                            onInitialize = I('function() { this.setValue(""); }')),
                          server = TRUE)
     
+    updateSelectizeInput(session,
+                         inputId = 'indep_factor',
+                         choices = indep_names,
+                         options = list(
+                           placeholder = 'Please select Independent Measurement',
+                           onInitialize = I('function() { this.setValue(""); }')),
+                         server = TRUE)
+    
+    
     # 2
     updateSelectizeInput(session,
                          inputId = 'acc_factor',
                          choices = unique(data_xlsx()$ACC),
+                         selected = "",
                          options = list(
                            placeholder = 'Please select Accession',
                            onInitialize = I('function() { this.setValue(""); }')),
@@ -191,6 +243,7 @@ shinyServer(function(input, output, session) {
     updateSelectizeInput(session,
                          inputId = 'env_factor',
                          choices = unique(data_xlsx()$Environment),
+                         selected = "",
                          options = list(
                            placeholder = 'Please select Environment',
                            onInitialize = I('function() { this.setValue(""); }')),
@@ -199,6 +252,7 @@ shinyServer(function(input, output, session) {
     updateSelectizeInput(session,
                          inputId = 'pol_factor',
                          choices = unique(data_xlsx()$Population),
+                         selected = "",
                          options = list(
                            placeholder = 'Please select Population',
                            onInitialize = I('function() { this.setValue(""); }')),
@@ -206,45 +260,45 @@ shinyServer(function(input, output, session) {
     
     # 3
     
-    updateSelectizeInput(session,
-                         inputId = 'sel_factor',
-                         choices = unique(data_xlsx()$SEL),
-                         options = list(
-                           placeholder = 'Please select SEL',
-                           onInitialize = I('function() { this.setValue(""); }')),
-                         server = TRUE)
-    
-    updateSelectizeInput(session,
-                         inputId = 'svs_factor',
-                         choices = unique(data_xlsx()$SOILvsSALT),
-                         options = list(
-                           placeholder = 'Please select SOILvsSALT',
-                           onInitialize = I('function() { this.setValue(""); }')),
-                         server = TRUE)
-    
-    updateSelectizeInput(session,
-                         inputId = 'cva_factor',
-                         choices = unique(data_xlsx()$CONvsANC),
-                         options = list(
-                           placeholder = 'Please select CONvsANC',
-                           onInitialize = I('function() { this.setValue(""); }')),
-                         server = TRUE)
-    
-    updateSelectizeInput(session,
-                         inputId = 'avc_factor',
-                         choices = unique(data_xlsx()$AvsC),
-                         options = list(
-                           placeholder = 'Please select AvsC',
-                           onInitialize = I('function() { this.setValue(""); }')),
-                         server = TRUE)
-    
-    updateSelectizeInput(session,
-                         inputId = 'pvs_factor',
-                         choices = unique(data_xlsx()$PSvsSS),
-                         options = list(
-                           placeholder = 'Please select PSvsSS',
-                           onInitialize = I('function() { this.setValue(""); }')),
-                         server = TRUE)
+    # updateSelectizeInput(session,
+    #                      inputId = 'sel_factor',
+    #                      choices = unique(data_xlsx()$SEL),
+    #                      options = list(
+    #                        placeholder = 'Please select SEL',
+    #                        onInitialize = I('function() { this.setValue(""); }')),
+    #                      server = TRUE)
+    # 
+    # updateSelectizeInput(session,
+    #                      inputId = 'svs_factor',
+    #                      choices = unique(data_xlsx()$SOILvsSALT),
+    #                      options = list(
+    #                        placeholder = 'Please select SOILvsSALT',
+    #                        onInitialize = I('function() { this.setValue(""); }')),
+    #                      server = TRUE)
+    # 
+    # updateSelectizeInput(session,
+    #                      inputId = 'cva_factor',
+    #                      choices = unique(data_xlsx()$CONvsANC),
+    #                      options = list(
+    #                        placeholder = 'Please select CONvsANC',
+    #                        onInitialize = I('function() { this.setValue(""); }')),
+    #                      server = TRUE)
+    # 
+    # updateSelectizeInput(session,
+    #                      inputId = 'avc_factor',
+    #                      choices = unique(data_xlsx()$AvsC),
+    #                      options = list(
+    #                        placeholder = 'Please select AvsC',
+    #                        onInitialize = I('function() { this.setValue(""); }')),
+    #                      server = TRUE)
+    # 
+    # updateSelectizeInput(session,
+    #                      inputId = 'pvs_factor',
+    #                      choices = unique(data_xlsx()$PSvsSS),
+    #                      options = list(
+    #                        placeholder = 'Please select PSvsSS',
+    #                        onInitialize = I('function() { this.setValue(""); }')),
+    #                      server = TRUE)
     
     
   })
@@ -253,54 +307,48 @@ shinyServer(function(input, output, session) {
   # Histograms - based on specified dependent variable
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
-  output$hist_select_var <- renderUI({
-    cols_n <- input$dep_factor
-    
-    selectizeInput(inputId = "select_hist_var", 
-                   label = "Dependent variable: ", 
-                   multiple = F,
-                   choices = cols_n,  
-                   selected = "",
-                   options = list(
-                     placeholder = 'Please select one of Measurments',
-                     onInitialize = I('function() { this.setValue(""); }')))# cols_n[1])
-  })
+  # output$hist_select_var <- renderUI({
+  #   cols_n <- input$dep_factor
+  #   
+  #   selectizeInput(inputId = "select_hist_var", 
+  #                  label = "Dependent variable: ", 
+  #                  multiple = F,
+  #                  choices = cols_n,  
+  #                  selected = "",
+  #                  options = list(
+  #                    placeholder = 'Please select one of Measurments',
+  #                    onInitialize = I('function() { this.setValue(""); }')))# cols_n[1])
+  # })
   
   
   
   dataInput <- reactiveValues(data = NULL)
   
-  observeEvent(c( input$select_hist_var,
+  observeEvent(c(input$dep_factor, # select_hist_var
                  input$acc_factor, 
-                 input$svs_factor, 
-                 input$cva_factor, 
-                 input$pvs_factor,
-                 input$dep_factor,
+                 #input$svs_factor,
+                 #input$sel_factor, 
+                 #input$cva_factor, 
+                 #input$pvs_factor,
+                 
                  input$pol_factor,
                  input$env_factor,
-                 input$avc_factor,
+                 #input$avc_factor,
                  input$block_factor),{
     
     req(data_xlsx())
-    
-    # input$acc_factor
-    # input$svs_factor
-    # input$cva_factor
-    # input$pvs_factor
-    # input$dep_factor
-    # input$pol_factor
-    # input$env_factor
-    # input$avc_factor
   
     data <- data_xlsx()
     
     data %<>% dplyr::filter(Block_num == as.numeric(input$block_factor))
     
-    if(is.null(input$acc_factor) & is.null(input$svs_factor) & is.null(input$cva_factor) & is.null(input$pvs_factor) & is.null(input$dep_factor) & is.null(input$pol_factor) & is.null(input$env_factor) & is.null(input$avc_factor)){
+    # is.null(input$svs_factor) & is.null(input$cva_factor) & is.null(input$pvs_factor) & is.null(input$avc_factor)
+    
+    if(is.null(input$acc_factor) &  is.null(input$dep_factor) & is.null(input$pol_factor) & is.null(input$env_factor) ){
       data <- data
       
     } else{
-      data %<>% dplyr::filter(ACC %in% input$acc_factor | Environment %in% input$env_factor | Population %in% input$pol_factor | SEL %in% input$sel_factor | SOILvsSALT %in% input$svs_factor | CONvsANC %in% input$cva_factor | AvsC %in% input$avc_factor | PSvsSS %in% input$pvs_factor) %>%
+      data %<>% dplyr::filter(ACC %in% input$acc_factor | Environment %in% input$env_factor | Population %in% input$pol_factor) %>% # | SEL %in% input$sel_factor | SOILvsSALT %in% input$svs_factor | CONvsANC %in% input$cva_factor | AvsC %in% input$avc_factor | PSvsSS %in% input$pvs_factor
         dplyr::filter(Block_num == as.numeric(input$block_factor))
       
     }
@@ -315,12 +363,12 @@ shinyServer(function(input, output, session) {
   
   
   output$hist_var <- renderPlot({
-    req(input$select_hist_var)
+    req(input$dep_factor)#select_hist_var)
     req(dataInput$data)
     
     data <- dataInput$data
     
-    cc <- input$select_hist_var
+    cc <- input$dep_factor# select_hist_var
     
     print(cc)
     

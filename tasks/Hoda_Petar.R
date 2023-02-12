@@ -128,3 +128,18 @@ hist <- ggplot(data = data, aes_string(cc)) +
   theme_bw()
 
 hist
+
+
+xlsx_data <- readxl::read_excel(path = "tasks/G11&G12_V4_Petar.xlsx", sheet = "Description") %>% 
+  as.data.frame()
+
+xlsx_data
+
+kbl(xlsx_data) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+kbl(dat[1:10, ]) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+names(dat)[2:8]
+
