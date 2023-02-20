@@ -240,9 +240,9 @@ shinyUI(
                                            # hr(),
                                            h4("Data Selection: ", style = "color: #bc2929; font-size: 16px;"),
                                            p(""),
-                                           bsCollapse(id = "collapseExample", open = "1. Dependent and independent selection",
+                                           bsCollapse(id = "collapseExample", open = "1. Dependent factor",
                                                       
-                                                      bsCollapsePanel("1. Dependent and independent selection", style = "danger",
+                                                      bsCollapsePanel("1. Dependent factor", style = "danger",
                                                                       
                                                                       selectizeInput(
                                                                         inputId = 'dep_factor',
@@ -252,30 +252,37 @@ shinyUI(
                                                                         options = list(
                                                                           placeholder = 'Please select Measurement',
                                                                           onInitialize = I('function() { this.setValue(""); }')
-                                                                        )),
+                                                                        ))# ,
                                                                       
-                                                                      selectizeInput(
-                                                                        inputId = 'indep_factor',
-                                                                        label = "Independent factor: ",
-                                                                        choices = NULL,  
-                                                                        multiple = T,
-                                                                        options = list(
-                                                                          placeholder = 'Please select Independent Measurement',
-                                                                          onInitialize = I('function() { this.setValue(""); }')
-                                                                        ))
+                                                                      # selectizeInput(
+                                                                      #   inputId = 'indep_factor',
+                                                                      #   label = "Independent factor: ",
+                                                                      #   choices = NULL,  
+                                                                      #   multiple = T,
+                                                                      #   options = list(
+                                                                      #     placeholder = 'Please select Independent Measurement',
+                                                                      #     onInitialize = I('function() { this.setValue(""); }')
+                                                                      #   ))
                                                                       
                                                       ),
                                                       
-                                                      bsCollapsePanel("2. Filter with Independent Measurement", style = "danger",
-                                                                      selectizeInput(
-                                                                        inputId = 'acc_factor',
-                                                                        label = "Select Accession: ",
-                                                                        choices = NULL,  
-                                                                        multiple = F,
-                                                                        options = list(
-                                                                          placeholder = 'Please select Accession',
-                                                                          onInitialize = I('function() { this.setValue(""); }')
-                                                                        )),
+                                                      bsCollapsePanel("2. Independent factor", style = "danger", # Filter with Independent Measurement
+                                                                      
+                                                                      prettyCheckbox(inputId = "ch_acc_factor",
+                                                                                     label = "Use Accession",
+                                                                                     thick = TRUE,
+                                                                                     animation = "pulse",
+                                                                                     status = "danger"),
+                                                                      
+                                                                      uiOutput("acc_factor.dynamicui"),
+                                                                      
+                                                                      
+                                                                      prettyCheckbox(inputId = "ch_block_factor",
+                                                                                     label = "Use Block / tray",
+                                                                                     thick = TRUE,
+                                                                                     animation = "pulse",
+                                                                                     status = "danger"),
+                                                                      # uiOutput("block_factor.dynamicui"),
                                                                       noUiSliderInput(
                                                                         inputId = "block_factor", 
                                                                         label = "Block / tray: ",
@@ -284,25 +291,23 @@ shinyUI(
                                                                         color = "#bc2929", 
                                                                         tooltips = TRUE, 
                                                                         format = wNumbFormat(decimals = 0)
-                                                                        ),
-                                                                      selectizeInput(
-                                                                        inputId = 'env_factor',
-                                                                        label = "Select Environment: ",
-                                                                        choices = NULL,  
-                                                                        multiple = F,
-                                                                        options = list(
-                                                                          placeholder = 'Please select Environment',
-                                                                          onInitialize = I('function() { this.setValue(""); }')
-                                                                        )),
-                                                                      selectizeInput(
-                                                                        inputId = 'pol_factor',
-                                                                        label = "Select Population: ",
-                                                                        choices = NULL,  
-                                                                        multiple = F,
-                                                                        options = list(
-                                                                          placeholder = 'Please select Population',
-                                                                          onInitialize = I('function() { this.setValue(""); }')
-                                                                        ))         
+                                                                      ),
+                                                                      
+                                                                      prettyCheckbox(inputId = "ch_env_factor",
+                                                                                     label = "Use Environment",
+                                                                                     thick = TRUE,
+                                                                                     animation = "pulse",
+                                                                                     status = "danger"),
+                                                                      uiOutput("env_factor.dynamicui"),
+                                                                      
+                                                                      
+                                                                      prettyCheckbox(inputId = "ch_pol_factor",
+                                                                                     label = "Use Population",
+                                                                                     thick = TRUE,
+                                                                                     animation = "pulse",
+                                                                                     status = "danger"),
+                                                                      uiOutput("pol_factor.dynamicui")
+                                                                              
                                                                       
                                                       )#, 
                                                       # bsCollapsePanel("3. Independent", style = "danger",
@@ -363,20 +368,41 @@ shinyUI(
                                 
                                 column(width = 8,
                                        tabsetPanel(
-                                         tabPanel("Histograms",
-                                                  p(""),
-                                                  fluidRow(
-                                                    # column(width = 3,
-                                                    #        uiOutput(outputId = "hist_select_var")
-                                                    #        ), 
-                                                    column(width = 12,
-                                                           plotOutput(outputId = "hist_var") %>% withSpinner(color="#bc2929")
-                                                           )
-                                                    )
-                                                  ), 
-                                         tabPanel("Data summary"
+                                         tabPanel("Graphs",
                                                   
+                                                  tabsetPanel(
+                                                    
+                                                    tabPanel("Histograms",
+                                                             p(""),
+                                                             fluidRow(
+                                                               # column(width = 3,
+                                                               #        uiOutput(outputId = "hist_select_var")
+                                                               #        ), 
+                                                               column(width = 12,
+                                                                      plotOutput(outputId = "hist_var") %>% withSpinner(color="#bc2929")
+                                                               )
+                                                             )
+                                                             ),
+                                                    
+                                                    tabPanel("Gig-lot",
+                                                             p(""),
+                                                             fluidRow(
+                                                               column(width = 12,
+                                                                      plotOutput(outputId = "gig_var") %>% withSpinner(color="#bc2929")
+                                                                      )
+                                                               
+                                                             )
+                                                             
+                                                             )
+                                                    
+                                                    
                                                   )
+                                                  
+                                                  
+                                                  )#, 
+                                         # tabPanel("Data summary"
+                                         #          
+                                         #          )
                                          
                                        ) # tabsetPanel
                                        

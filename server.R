@@ -208,6 +208,70 @@ shinyServer(function(input, output, session) {
   # Update selectizeInput on server side
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
+  output$acc_factor.dynamicui <- renderUI({
+    req(input$ch_acc_factor == TRUE)
+    req(data_xlsx())
+    
+    selectizeInput(
+      inputId = 'acc_factor',
+      label = "Select Accession: ",
+      choices = unique(data_xlsx()$ACC),
+      selected = "",
+      multiple = T,
+      options = list(
+        placeholder = 'Please select Accession',
+        onInitialize = I('function() { this.setValue(""); }')
+      ))
+  })
+  
+  # output$block_factor.dynamicui <- renderUI({
+  #   req(input$ch_block_factor == TRUE)
+  #   req(data_xlsx())
+  #   
+  #   noUiSliderInput(
+  #     inputId = "block_factor", 
+  #     label = "Block / tray: ",
+  #     min = 1, max = 20, value = 3, step = 1,
+  #     width = "90%",
+  #     color = "#bc2929", 
+  #     tooltips = TRUE, 
+  #     format = wNumbFormat(decimals = 0)
+  #   )
+  # })
+  
+  output$env_factor.dynamicui <- renderUI({
+    req(input$ch_env_factor == TRUE)
+    req(data_xlsx())
+    
+    selectizeInput(
+      inputId = 'env_factor',
+      label = "Select Environment: ",
+      choices = unique(data_xlsx()$Environment),
+      selected = "",
+      multiple = T,
+      options = list(
+        placeholder = 'Please select Environment',
+        onInitialize = I('function() { this.setValue(""); }')
+      ))
+    
+  })
+  
+  output$pol_factor.dynamicui <- renderUI({
+    req(input$ch_pol_factor == TRUE)
+    req(data_xlsx())
+    
+    selectizeInput(
+      inputId = 'pol_factor',
+      label = "Select Population: ",
+      choices = unique(data_xlsx()$Population),
+      selected = "",
+      multiple = T,
+      options = list(
+        placeholder = 'Please select Population',
+        onInitialize = I('function() { this.setValue(""); }')
+      )) 
+    
+  })
   
   observeEvent(data_xlsx(), {
     
@@ -221,42 +285,42 @@ shinyServer(function(input, output, session) {
                            onInitialize = I('function() { this.setValue(""); }')),
                          server = TRUE)
     
-    updateSelectizeInput(session,
-                         inputId = 'indep_factor',
-                         choices = indep_names,
-                         options = list(
-                           placeholder = 'Please select Independent Measurement',
-                           onInitialize = I('function() { this.setValue(""); }')),
-                         server = TRUE)
+    # updateSelectizeInput(session,
+    #                      inputId = 'indep_factor',
+    #                      choices = indep_names,
+    #                      options = list(
+    #                        placeholder = 'Please select Independent Measurement',
+    #                        onInitialize = I('function() { this.setValue(""); }')),
+    #                      server = TRUE)
     
     
     # 2
-    updateSelectizeInput(session,
-                         inputId = 'acc_factor',
-                         choices = unique(data_xlsx()$ACC),
-                         selected = "",
-                         options = list(
-                           placeholder = 'Please select Accession',
-                           onInitialize = I('function() { this.setValue(""); }')),
-                         server = TRUE)
+    # updateSelectizeInput(session,
+    #                      inputId = 'acc_factor',
+    #                      choices = unique(data_xlsx()$ACC),
+    #                      selected = "",
+    #                      options = list(
+    #                        placeholder = 'Please select Accession',
+    #                        onInitialize = I('function() { this.setValue(""); }')),
+    #                      server = TRUE)
     
-    updateSelectizeInput(session,
-                         inputId = 'env_factor',
-                         choices = unique(data_xlsx()$Environment),
-                         selected = "",
-                         options = list(
-                           placeholder = 'Please select Environment',
-                           onInitialize = I('function() { this.setValue(""); }')),
-                         server = TRUE)
+    # updateSelectizeInput(session,
+    #                      inputId = 'env_factor',
+    #                      choices = unique(data_xlsx()$Environment),
+    #                      selected = "",
+    #                      options = list(
+    #                        placeholder = 'Please select Environment',
+    #                        onInitialize = I('function() { this.setValue(""); }')),
+    #                      server = TRUE)
     
-    updateSelectizeInput(session,
-                         inputId = 'pol_factor',
-                         choices = unique(data_xlsx()$Population),
-                         selected = "",
-                         options = list(
-                           placeholder = 'Please select Population',
-                           onInitialize = I('function() { this.setValue(""); }')),
-                         server = TRUE)
+    # updateSelectizeInput(session,
+    #                      inputId = 'pol_factor',
+    #                      choices = unique(data_xlsx()$Population),
+    #                      selected = "",
+    #                      options = list(
+    #                        placeholder = 'Please select Population',
+    #                        onInitialize = I('function() { this.setValue(""); }')),
+    #                      server = TRUE)
     
     # 3
     
@@ -304,6 +368,52 @@ shinyServer(function(input, output, session) {
   })
   
   
+  # observeEvent(input$ch_acc_factor, {
+  #   
+  #   if(input$ch_acc_factor == FALSE){
+  #   
+  #   # selectizeInput(
+  #   #   inputId = 'acc_factor',
+  #   #   label = "Select Accession: ",
+  #   #   choices = NULL,
+  #   #   multiple = T,
+  #   #   options = list(
+  #   #     placeholder = 'Please select Accession',
+  #   #     onInitialize = I('function() { this.setValue(""); }')
+  #   #   ))
+  #   # 
+  #   # 
+  # 
+  #   
+  #   }
+  # })
+  # 
+  # observeEvent(input$ch_env_factor == FALSE, {
+  #   # selectizeInput(
+  #   #   inputId = 'env_factor',
+  #   #   label = "Select Environment: ",
+  #   #   choices = NULL,
+  #   #   multiple = T,
+  #   #   options = list(
+  #   #     placeholder = 'Please select Environment',
+  #   #     onInitialize = I('function() { this.setValue(""); }')
+  #   #   ))
+  # 
+  # })
+  # 
+  # observeEvent(input$ch_pol_factor == FALSE, {
+  #   # selectizeInput(
+  #   #   inputId = 'pol_factor',
+  #   #   label = "Select Population: ",
+  #   #   choices = NULL,
+  #   #   multiple = T,
+  #   #   options = list(
+  #   #     placeholder = 'Please select Population',
+  #   #     onInitialize = I('function() { this.setValue(""); }')
+  #   #   ))
+  #   
+  # })
+  
   # Histograms - based on specified dependent variable
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
@@ -334,33 +444,107 @@ shinyServer(function(input, output, session) {
                  input$pol_factor,
                  input$env_factor,
                  #input$avc_factor,
-                 input$block_factor),{
+                 input$block_factor,
+                 input$ch_acc_factor,
+                 input$ch_pol_factor,
+                 input$ch_env_factor,
+                 input$ch_block_factor),{
     
     req(data_xlsx())
   
     data <- data_xlsx()
     
-    data %<>% dplyr::filter(Block_num == as.numeric(input$block_factor))
+    if(input$ch_block_factor == TRUE){
+      data %<>% dplyr::filter(Block_num == as.numeric(input$block_factor))
+    }
     
     # is.null(input$svs_factor) & is.null(input$cva_factor) & is.null(input$pvs_factor) & is.null(input$avc_factor)
     
-    if(is.null(input$acc_factor) &  is.null(input$dep_factor) & is.null(input$pol_factor) & is.null(input$env_factor) ){
-      data <- data
+    # if(is.null(input$acc_factor) &  is.null(input$dep_factor) & is.null(input$pol_factor) & is.null(input$env_factor) ){
+    #   data <- data
+    #   
+    # } else{
+    #   
+    #   data %<>% dplyr::filter(ACC %in% input$acc_factor & Environment %in% input$env_factor & Population %in% input$pol_factor) #%>% # | SEL %in% input$sel_factor | SOILvsSALT %in% input$svs_factor | CONvsANC %in% input$cva_factor | AvsC %in% input$avc_factor | PSvsSS %in% input$pvs_factor
+    #     #dplyr::filter(Block_num == as.numeric(input$block_factor))
+    #   
+    # }
+    
+    if(input$ch_acc_factor == FALSE){
       
+      acc_factor <- NULL 
     } else{
-      data %<>% dplyr::filter(ACC %in% input$acc_factor | Environment %in% input$env_factor | Population %in% input$pol_factor) %>% # | SEL %in% input$sel_factor | SOILvsSALT %in% input$svs_factor | CONvsANC %in% input$cva_factor | AvsC %in% input$avc_factor | PSvsSS %in% input$pvs_factor
-        dplyr::filter(Block_num == as.numeric(input$block_factor))
       
+      acc_factor <- input$acc_factor
+    }
+    
+    if(input$ch_pol_factor == FALSE){
+      
+      pol_factor <- NULL 
+    } else{
+      
+      pol_factor <- input$pol_factor
+    }
+    
+    if(input$ch_env_factor == FALSE){
+      
+      env_factor <- NULL 
+    } else{
+      
+      env_factor <- input$env_factor
+    }
+    
+    
+    
+    if(is.null(acc_factor) & is.null(input$dep_factor) & is.null(pol_factor) & is.null(env_factor)){
+      
+      data <- data_xlsx()
+      print(1)
+      
+    } else if(is.null(acc_factor) & is.null(pol_factor) & is.null(env_factor)){
+      
+      data <- data
+      print(2)
+    }
+      else if(is.null(acc_factor) & !is.null(pol_factor) & !is.null(env_factor)){
+      
+      data %<>% dplyr::filter(Environment %in% env_factor & Population %in% pol_factor) 
+      print(3)
+    } else if(!is.null(acc_factor) & !is.null(pol_factor) & is.null(env_factor)){
+      
+      data %<>% dplyr::filter(ACC %in% acc_factor & Population %in% pol_factor) 
+      print(4)
+    } else if(!is.null(acc_factor) & is.null(pol_factor) & !is.null(env_factor)){
+      
+      data %<>% dplyr::filter(ACC %in% acc_factor & Environment %in% env_factor) 
+      print(5)
+    } else if(is.null(acc_factor) & is.null(pol_factor) & !is.null(env_factor)){
+      
+      data %<>% dplyr::filter(Environment %in% env_factor)
+      print(6)
+    } else if(is.null(acc_factor) & !is.null(pol_factor) & is.null(env_factor)){
+      
+      data %<>% dplyr::filter(Population %in% pol_factor) 
+      print(7)
+    } else if(!is.null(acc_factor) & is.null(pol_factor) & is.null(env_factor)){
+      
+      data %<>% dplyr::filter(ACC %in% acc_factor) 
+      print(8)
+    } else { #if(!is.null(acc_factor) & !is.null(pol_factor) & !is.null(env_factor)){
+      
+      data %<>% dplyr::filter(ACC %in% acc_factor & Environment %in% env_factor & Population %in% pol_factor) 
+      print(9)
     }
     
     if(dim(data)[1] == 0){
-      data <- data_xlsx() %>% dplyr::filter(Block_num == as.numeric(input$block_factor))
+      data <- data_xlsx() #%>% dplyr::filter(Block_num == as.numeric(input$block_factor))
     }
-    
+     
     dataInput$data <- data
   })
   
-  
+  # Histogram
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   output$hist_var <- renderPlot({
     req(input$dep_factor)#select_hist_var)
@@ -392,6 +576,44 @@ shinyServer(function(input, output, session) {
   },
   width = "auto",
   height = "auto")
+  
+  
+  # Gig-lot
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  output$gig_var <- renderPlot({
+    req(input$dep_factor)
+    req(dataInput$data)
+    
+    data <- dataInput$data
+    
+    cc <- input$dep_factor# select_hist_var
+    
+    pp1 <- data %>%
+      ggplot(
+        aes(x = Population, y = !!sym(cc), color = Population)) +
+      geom_quasirandom(alpha = .5, show.legend = FALSE) +
+      geom_boxplot(fill = NA, color = 'black',
+                   varwidth = FALSE, outlier.shape = NA) +
+      stat_summary(fun = mean, color = 'darkred') +
+      scale_color_brewer(palette = "Dark2") +
+      labs(
+        x = 'Populations',
+        y = 'Measurement',
+        title = paste0('Distribution of the raw data: ', cc)) +
+      facet_grid(vars(Environment), vars(ACC), scales = 'free', space = 'free') +
+      theme_classic(base_size = 10) +
+      theme(
+        axis.text.x = element_text(size = 10, angle = 45, vjust = .5),
+        plot.title.position = 'plot',
+        plot.subtitle = element_text(color = 'gray40'),
+        plot.margin = unit(rep(.25, 4), 'cm'))
+    
+    return(pp1)
+  },
+  width = "auto",
+  height = "auto")
+  
   
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

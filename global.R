@@ -15,6 +15,7 @@ library(DT)
 library(readxl)
 library(kableExtra)
 library(knitr)
+library(ggbeeswarm)
 
 user = "admin"
 pass = "admin"

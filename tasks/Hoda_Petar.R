@@ -143,3 +143,67 @@ kbl(dat[1:10, ]) %>%
 
 names(dat)[2:8]
 
+
+names(dat)
+
+vars <- names(dat[9:15])
+
+library(ggbeeswarm)
+
+column <- "G11Heightcm"
+# Add plot
+
+data <- dat
+select_hist_var <- "G11Heightcm"
+cc <- select_hist_var
+
+
+unique(dat$Environment)
+unique(dat$ACC)
+unique(dat$Population)
+
+
+input <- list()
+
+input$acc_factor <- "Sha"
+input$pol_factor <- c("PSD", "SSD-1")
+input$env_factor <- c("control", "ancestor")
+input$block_factor <- 3
+
+
+if(is.null(input$acc_factor) &  is.null(input$dep_factor) & is.null(input$pol_factor) & is.null(input$env_factor) ){
+  data <- data
+  
+} else{
+  data %<>% dplyr::filter(ACC %in% input$acc_factor & Environment %in% input$env_factor & Population %in% input$pol_factor) #@%>% # | SEL %in% input$sel_factor | SOILvsSALT %in% input$svs_factor | CONvsANC %in% input$cva_factor | AvsC %in% input$avc_factor | PSvsSS %in% input$pvs_factor
+    #dplyr::filter(Block_num == as.numeric(input$block_factor))
+  
+}
+
+
+
+pp1 <- data %>%
+  ggplot(
+    aes(x = Population, y = !!sym(column), color = Population)
+  )+
+  geom_quasirandom(alpha = .5, show.legend = FALSE)+
+  geom_boxplot(fill = NA, color = 'black',
+               varwidth = FALSE, outlier.shape = NA)+
+  stat_summary(fun = mean, color = 'darkred')+
+  scale_color_brewer(palette = "Dark2")+
+  labs(
+    x = 'Populations',
+    y = 'Measurement',
+    title = 'Distribution of the raw data')+
+  facet_grid(vars(Environment), vars(ACC), scales = 'free', space = 'free')+
+  theme_classic(base_size = 10)+
+  theme(
+    axis.text.x = element_text(size = 10, angle = 45, vjust = .5),
+    plot.title.position = 'plot',
+    plot.subtitle = element_text(color = 'gray40'),
+    plot.margin = unit(rep(.25, 4), 'cm')
+  )
+
+
+
+pp1
