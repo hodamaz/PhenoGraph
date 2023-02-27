@@ -72,6 +72,11 @@ shinyServer(function(input, output, session) {
                       selected = "Data Selection")
   })
   
+  observeEvent(input$go_to_model_selection, {
+    updateTabsetPanel(session, "inTabset",
+                      selected = "Model Selection")
+  })
+  
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   
@@ -284,6 +289,16 @@ shinyServer(function(input, output, session) {
                            placeholder = 'Please select Measurement',
                            onInitialize = I('function() { this.setValue(""); }')),
                          server = TRUE)
+    
+    updateSelectizeInput(session,
+                         inputId = 'model_sel',
+                         choices = c("m1: The overall analysis", "m2: Interaction with two component", "m3: Interaction with three components", "m4: Interaction of more components"),
+                         selected = "",
+                         options = list(
+                           placeholder = 'Please select the Model',
+                           onInitialize = I('function() { this.setValue(""); }')),
+                         server = TRUE)
+    
     
     # updateSelectizeInput(session,
     #                      inputId = 'indep_factor',
@@ -615,9 +630,142 @@ shinyServer(function(input, output, session) {
   height = "auto")
   
   
+  # Model selection
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
+  model_res <- eventReactive(input$run_model, {
+    req(data_xlsx())
+    req(input$model_sel)
+    req(input$dep_factor)
+    
+    data <- data_xlsx()
+    resp <- input$dep_factor
+    
+    # c("m1: The overall analysis", "m2: Interaction with two component", "m3: Interaction with three components", "m4: Interaction of more components")
+    
+    if(input$model_sel == "m1: The overall analysis"){
+      
+      model <- lm(terms(data[, resp] ~ Block  #Blocks
+                     + ACC  #Accessions
+                     + SEL + SOILvsSALT + CONvsANC  #Selection contrasts
+                     + AvsC + PSvsSS  #Population contrasts
+                     + ACC:(SEL + SOILvsSALT + CONvsANC + AvsC + PSvsSS + Population)  #Interactions of accessions
+                     + (SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS)  #Interactions selection x population contrasts
+                     + ACC:(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS + Population),   #3-way interactions
+                     keep.order = T), 
+               data = data)
+      
+    } else if (input$model_sel == "m2: Interaction with two component"){
+      
+      model <- lm(terms(data[, resp] ~ Block
+                        + ACC*AvsC,
+                        keep.order = F),
+                  data = data)
+      
+    } else if (input$model_sel == "m3: Interaction with three components"){
+      
+      model <- lm(terms(data[, resp] ~ Block
+                        + ACC * (AvsC + PSvsSS),
+                        keep.order = F),
+                  data = data)
+      
+    } else if (input$model_sel == "m4: Interaction of more components") {
+      
+      model <- lm(terms(data[, resp] ~ Block  #Blocks
+                        + SEL + SOILvsSALT + CONvsANC  #Selection contrasts
+                        + AvsC + PSvsSS  #Population contrasts
+                        +(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS),  #Interactions selection x population contrasts
+                        keep.order = T), 
+                  data = data)
+    } else {
+      print("Not valid model choosed!")
+      
+    }
+    
+    return(model)
+    
+    
+  })
+  
+  
+  # Model - results - ANOVA table
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  output$table_anova <- function() {
+    req(model_res())
+    req(input$dep_factor)
+    
+    resp <- input$dep_factor
+    
+    kbl(round(anova(model_res()), 2), caption = paste0("Analysis of Variance Table - ", "Response: ", resp)) %>%
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+    
+  }
+  
+  
+  # Model plot
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   
+  output$perf_plot <- renderPlot({
+    req(model_res())
+    req(input$dep_factor)
+    
+    pp1 <- performance::check_model(model_res())
+    
+    return(pp1)
+  },
+  width = 900,
+  height = 900)
+  
+  
+  # output$ind_plot <- renderPlot({
+  #   req(data_xlsx())
+  #   req(input$model_sel)
+  #   req(input$dep_factor)
+  #   req(model_res())
+  #   
+  #   data <- data_xlsx()
+  #   resp <- input$dep_factor
+  #   
+  #   m1 <- lm(terms(data[, resp] ~ Block  #Blocks
+  #                  + ACC  #Accessions
+  #                  + SEL + SOILvsSALT + CONvsANC  #Selection contrasts
+  #                  + AvsC + PSvsSS  #Population contrasts
+  #                  + ACC:(SEL + SOILvsSALT + CONvsANC + AvsC + PSvsSS + Population)  #Interactions of accessions
+  #                  + (SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS)  #Interactions selection x population contrasts
+  #                  + ACC:(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS + Population),   #3-way interactions
+  #                  keep.order = T), 
+  #            data = data)
+  #   
+  #   m2 <- lm(terms(data[, resp] ~ Block
+  #                  + ACC*AvsC,
+  #                  keep.order = F),
+  #            data = data)
+  #   
+  #   
+  #   m3 <- lm(terms(data[, resp] ~ Block
+  #                  + ACC * (AvsC + PSvsSS),
+  #                  keep.order = F),
+  #            data = data)
+  #   
+  #   
+  #   m4 <- lm(terms(data[, resp] ~ Block  #Blocks
+  #                  + SEL + SOILvsSALT + CONvsANC  #Selection contrasts
+  #                  + AvsC + PSvsSS  #Population contrasts
+  #                  +(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS),  #Interactions selection x population contrasts
+  #                  keep.order = T), 
+  #            data = data)   
+  #     
+  #    
+  #   
+  #   pp1 <- plot(performance::compare_performance(m1, m2, m3, m4, rank = TRUE))
+  # 
+  #   return(pp1)
+  # },
+  # width = 900,
+  # height = 900)
+  
+
     
 }) # shinyServer

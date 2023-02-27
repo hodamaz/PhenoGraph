@@ -358,8 +358,10 @@ shinyUI(
                                                       #                   ))
                                                       #                            
                                                       # )
-                                           ) # bsCollapse
-                                       
+                                           ), # bsCollapse
+                                           p(""),
+                                           hr(),
+                                           actionButton(inputId = "go_to_model_selection", label= "Model selection", class = "btn-info btn-block", icon = shiny::icon("arrow-circle-right"))
                                        ) # divClassSideBar
                                            
                                        
@@ -418,9 +420,75 @@ shinyUI(
                
                tabPanel(title = span("Model Selection", title = "Select the model"), value = "Model Selection", icon = icon("microchip"),
                         hidden(
-                          div(id = "msdiv"
+                          div(id = "msdiv",
                               
-                              
+                              fluidRow(
+                                column(width = 4,
+                                       
+                                       div(id = "conditionalPanel0", class = "divClassSideBar",
+                                           # p(""),
+                                           # hr(),
+                                           h4("Model Selection: ", style = "color: #bc2929; font-size: 16px;"),
+                                           p(""),
+                                           
+                                           selectizeInput(
+                                             inputId = 'model_sel',
+                                             label = "Select the Model: ",
+                                             choices = NULL,
+                                             selected = "",
+                                             multiple = FALSE,
+                                             options = list(
+                                               placeholder = 'Please select the Model',
+                                               onInitialize = I('function() { this.setValue(""); }')
+                                             )),
+                                           
+                                           p(""),
+                                           hr(),
+                                           actionButton(inputId = "run_model", label= "Run the Model", class = "btn-danger btn-block", icon = shiny::icon("microchip"))
+                                           )
+                                       
+                                       ),
+                                
+                                column(width = 8,
+                                       tabsetPanel(
+                                         tabPanel("ANOVA table",
+                                                  p(""),
+                                                  fluidRow(
+                                                    column(width = 12,
+                                                           
+                                                           div(id = "anovadiv", style = "background:white; height:600px; overflow-y: scroll;",
+                                                               tableOutput("table_anova") %>% withSpinner(color="#bc2929"))
+
+                                                           )
+                                                  )
+                                                  
+                                                  ),
+                                         tabPanel("Performance plot",
+                                                  p(""),
+                                                  fluidRow(
+                                                    column(width = 12,
+                                                           
+                                                           div(id = "perfmdiv", style = "background:white; height:600px; overflow-y: scroll;",
+                                                               plotOutput(outputId = "perf_plot") %>% withSpinner(color="#bc2929"))
+                                                           
+                                                           )
+                                                  )
+                                                  )#,
+                                         # tabPanel("Indices of models",
+                                         #          p(""),
+                                         #          fluidRow(
+                                         #            column(width = 12,
+                                         #                   
+                                         #                   div(id = "inddiv", style = "background:white; height:600px; overflow-y: scroll;",
+                                         #                       plotOutput(outputId = "ind_plot") %>% withSpinner(color="#bc2929"))
+                                         #                   
+                                         #            )
+                                         #          )
+                                         #          )
+                                         
+                                       )
+                                       )
+                              )
                               
                               
                               

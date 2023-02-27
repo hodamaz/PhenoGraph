@@ -16,6 +16,9 @@ library(readxl)
 library(kableExtra)
 library(knitr)
 library(ggbeeswarm)
+library(patchwork)
+library(performance)
+library(easystats)
 
 user = "admin"
 pass = "admin"
