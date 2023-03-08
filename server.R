@@ -697,15 +697,23 @@ shinyServer(function(input, output, session) {
     
     resp <- input$dep_factor
     
-    kbl(round(anova(model_res()), 2), caption = paste0("Analysis of Variance Table - ", "Response: ", resp)) %>%
+    a.m <- round(anova(model_res()), 3) %>% as.data.frame()
+    
+    a.m %<>% dplyr::mutate(`Signif. codes` = case_when(`Pr(>F)` <= 0.001 ~ "***",
+                                                        `Pr(>F)` <= 0.01 ~ "**",
+                                                        `Pr(>F)` <= 0.05 ~ "*",
+                                                        `Pr(>F)` <= 0.1 ~ ".",
+                                                        `Pr(>F)` > 0.1 ~ " ",
+                                                        is.na(`Pr(>F)`) ~ " "))
+    
+    kbl(a.m, caption = paste0("Analysis of Variance Table - ", "Response: ", resp)) %>%
       kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
     
   }
   
   
-  # Model plot
+  # Model plot - Performance plot
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  
   
   output$perf_plot <- renderPlot({
     req(model_res())
@@ -719,53 +727,135 @@ shinyServer(function(input, output, session) {
   height = 900)
   
   
-  # output$ind_plot <- renderPlot({
-  #   req(data_xlsx())
-  #   req(input$model_sel)
-  #   req(input$dep_factor)
-  #   req(model_res())
-  #   
-  #   data <- data_xlsx()
-  #   resp <- input$dep_factor
-  #   
-  #   m1 <- lm(terms(data[, resp] ~ Block  #Blocks
-  #                  + ACC  #Accessions
-  #                  + SEL + SOILvsSALT + CONvsANC  #Selection contrasts
-  #                  + AvsC + PSvsSS  #Population contrasts
-  #                  + ACC:(SEL + SOILvsSALT + CONvsANC + AvsC + PSvsSS + Population)  #Interactions of accessions
-  #                  + (SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS)  #Interactions selection x population contrasts
-  #                  + ACC:(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS + Population),   #3-way interactions
-  #                  keep.order = T), 
-  #            data = data)
-  #   
-  #   m2 <- lm(terms(data[, resp] ~ Block
-  #                  + ACC*AvsC,
-  #                  keep.order = F),
-  #            data = data)
-  #   
-  #   
-  #   m3 <- lm(terms(data[, resp] ~ Block
-  #                  + ACC * (AvsC + PSvsSS),
-  #                  keep.order = F),
-  #            data = data)
-  #   
-  #   
-  #   m4 <- lm(terms(data[, resp] ~ Block  #Blocks
-  #                  + SEL + SOILvsSALT + CONvsANC  #Selection contrasts
-  #                  + AvsC + PSvsSS  #Population contrasts
-  #                  +(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS),  #Interactions selection x population contrasts
-  #                  keep.order = T), 
-  #            data = data)   
-  #     
-  #    
-  #   
-  #   pp1 <- plot(performance::compare_performance(m1, m2, m3, m4, rank = TRUE))
-  # 
-  #   return(pp1)
-  # },
-  # width = 900,
-  # height = 900)
+  # Visualisation of indices of models’ performance
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
+  output$ind_plot <- renderPlot({
+    req(data_xlsx())
+    req(input$model_sel)
+    req(input$dep_factor)
+    req(model_res())
+
+    data <- data_xlsx()
+    resp <- input$dep_factor
+    
+    m1 <- lm(as.formula(paste0(resp, " ~ Block + ACC + SEL + SOILvsSALT + CONvsANC + AvsC + PSvsSS + ACC:(SEL + SOILvsSALT + CONvsANC + AvsC + PSvsSS + Population) + (SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS) + ACC:(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS + Population)")), 
+             data = data)
+
+    m2 <- lm(as.formula(paste0(resp, " ~ Block + ACC*AvsC")),
+             data = data)
+
+
+    m3 <- lm(as.formula(paste0(resp, " ~ Block + ACC * (AvsC + PSvsSS)")),
+             data = data)
+
+
+    m4 <- lm(as.formula(paste0(resp, " ~ Block + SEL + SOILvsSALT + CONvsANC + AvsC + PSvsSS +(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS)")),
+             data = data)
+
+    pp1 <- plot(performance::compare_performance(m1, m2, m3, m4, rank = TRUE))
+
+    return(pp1)
+  },
+  width = "auto",
+  height = 450)
+  
+  
+  # Models’ performance table
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  output$table_performance <- function() {
+    req(data_xlsx())
+    req(input$model_sel)
+    req(input$dep_factor)
+    req(model_res())
+    
+    data <- data_xlsx()
+    resp <- input$dep_factor
+    
+    m1 <- lm(as.formula(paste0(resp, " ~ Block + ACC + SEL + SOILvsSALT + CONvsANC + AvsC + PSvsSS + ACC:(SEL + SOILvsSALT + CONvsANC + AvsC + PSvsSS + Population) + (SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS) + ACC:(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS + Population)")), 
+             data = data)
+    
+    m2 <- lm(as.formula(paste0(resp, " ~ Block + ACC*AvsC")),
+             data = data)
+    
+    
+    m3 <- lm(as.formula(paste0(resp, " ~ Block + ACC * (AvsC + PSvsSS)")),
+             data = data)
+    
+    
+    m4 <- lm(as.formula(paste0(resp, " ~ Block + SEL + SOILvsSALT + CONvsANC + AvsC + PSvsSS +(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS)")),
+             data = data)
+    
+    cp.df <- compare_performance(m1, m2, m3, m4, rank = TRUE) %>% as.data.frame()
+    
+    round_df <- function(df, digits) {
+      nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
+      
+      df[,nums] <- round(df[,nums], digits = digits)
+      
+      (df)
+    }
+    
+    cp.df <- round_df(cp.df, digits = 3)
+    
+    
+    kbl(cp.df, caption = paste0("Comparison of Model Performance Indices - ", "Response: ", resp)) %>%
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+    
+  }
+  
+  
+  # Model formula
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  output$model.call.dynamicui <- renderUI({
+    req(data_xlsx())
+    req(input$model_sel)
+    req(input$dep_factor)
+    
+    textOutput("model.call")
+    
+  })
+  
+  output$model.call <- renderText({ 
+    req(data_xlsx())
+    req(input$model_sel)
+    req(input$dep_factor)
+    
+    resp <- input$dep_factor
+    
+    if(input$model_sel == "m1: The overall analysis"){
+      
+      f.m <- paste0(resp, " ~ Block + ACC + SEL + SOILvsSALT + CONvsANC + 
+    AvsC + PSvsSS + ACC:(SEL + SOILvsSALT + CONvsANC + AvsC + 
+    PSvsSS + Population) + (SEL + SOILvsSALT + CONvsANC):(AvsC + 
+    PSvsSS) + ACC:(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS + 
+    Population)")
+      
+    } else if (input$model_sel == "m2: Interaction with two component"){
+      
+      f.m <- paste0(resp, " ~ Block + ACC * AvsC")
+      
+      
+    } else if (input$model_sel == "m3: Interaction with three components"){
+      
+      f.m <- paste0(resp, " ~ Block + ACC * (AvsC + PSvsSS)")
+      
+      
+    } else if (input$model_sel == "m4: Interaction of more components") {
+      
+      f.m <- paste0(resp, " ~ Block + SEL + SOILvsSALT + CONvsANC + AvsC + PSvsSS +(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS)")
+      
+      
+    } else {
+      print("Not valid model choosed!")
+      
+    }
+    
+    paste0("Model formula: \n", f.m)
+    
+  })
 
     
 }) # shinyServer

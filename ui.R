@@ -443,6 +443,8 @@ shinyUI(
                                              )),
                                            
                                            p(""),
+                                           uiOutput("model.call.dynamicui"),
+                                           p(""),
                                            hr(),
                                            actionButton(inputId = "run_model", label= "Run the Model", class = "btn-danger btn-block", icon = shiny::icon("microchip"))
                                            )
@@ -473,18 +475,22 @@ shinyUI(
                                                            
                                                            )
                                                   )
-                                                  )#,
-                                         # tabPanel("Indices of models",
-                                         #          p(""),
-                                         #          fluidRow(
-                                         #            column(width = 12,
-                                         #                   
-                                         #                   div(id = "inddiv", style = "background:white; height:600px; overflow-y: scroll;",
-                                         #                       plotOutput(outputId = "ind_plot") %>% withSpinner(color="#bc2929"))
-                                         #                   
-                                         #            )
-                                         #          )
-                                         #          )
+                                                  ),
+                                         
+                                         tabPanel("Indices of models performance",
+                                                  p(""),
+                                                  fluidRow(
+                                                    column(width = 12,
+
+                                                           div(id = "inddiv", style = "background:white; height:600px; overflow-y: scroll;",
+                                                               plotOutput(outputId = "ind_plot") %>% withSpinner(color="#bc2929"),
+                                                               p(""),
+                                                               tableOutput("table_performance") %>% withSpinner(color="#bc2929")
+                                                               )
+
+                                                    )
+                                                  )
+                                                  )
                                          
                                        )
                                        )

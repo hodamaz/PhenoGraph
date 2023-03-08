@@ -4,11 +4,11 @@ username:
 account: surveyor
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
-appId: 8423121
-bundleId: 6893118
+appId: 8512109
+bundleId: 6930612
 url: https://surveyor.shinyapps.io/PhenoGraph_Shiny/
-when: 1677512083.4303
-lastSyncTime: 1677512083.4303
+when: 1678275674.22953
+lastSyncTime: 1678275674.22953
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: dependencies.R|LICENSE|README.md|tasks/Codes-Phenograph-1.R|tasks/G11&G12_V4_Petar.xlsx
+ignoredFiles: dependencies.R|LICENSE|README.md|tasks/Codes-Phenograph-1.R|tasks/G11&G12_V4_Petar.xlsx|tasks/Hoda_Petar.R

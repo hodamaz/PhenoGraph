@@ -69,13 +69,15 @@ input$pol_factor <- c("PSD", "SSD-1")
 input$env_factor <- c("control", "ancestor")
 input$block_factor <- 3
 
-data %<>% dplyr::mutate(BL = extract_numeric(Block))
+data %<>% dplyr::mutate(Block_num = extract_numeric(Block))
 
 data <- dat
 
 acc_factor <- input$acc_factor
 pol_factor <- input$pol_factor
 env_factor <- input$env_factor
+
+data %<>% dplyr::filter(Block_num == as.numeric(input$block_factor))
 
 if(is.null(acc_factor) & is.null(pol_factor) & is.null(env_factor)){
   
@@ -176,14 +178,14 @@ drop_fixed_factors <- function(x) {
 # ------------------------------------------------------------------------------
 resp <- "G11Heightcm"
 
-m1 <- lm(terms(data[, resp] ~ Block  #Blocks
-                 + ACC  #Accessions
-                 + SEL + SOILvsSALT + CONvsANC  #Selection contrasts
-                 + AvsC + PSvsSS  #Population contrasts
-                 + ACC:(SEL + SOILvsSALT + CONvsANC + AvsC + PSvsSS + Population)  #Interactions of accessions
-                 + (SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS)  #Interactions selection x population contrasts
-                 + ACC:(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS + Population),   #3-way interactions
-               keep.order = T), 
+f.m1 <- paste0(resp, " ~ Block + ACC + SEL + SOILvsSALT + CONvsANC + 
+    AvsC + PSvsSS + ACC:(SEL + SOILvsSALT + CONvsANC + AvsC + 
+    PSvsSS + Population) + (SEL + SOILvsSALT + CONvsANC):(AvsC + 
+    PSvsSS) + ACC:(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS + 
+    Population)")
+
+
+m1 <- lm(as.formula(f.m1), 
          data = data)
 
 anova(m1)
@@ -194,13 +196,36 @@ kbl(round(anova(m1), 2), caption = paste0("Analysis of Variance Table\n", "Respo
   # knitr::kable("html") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 
+
+dput(anova(m1))
+
+a.m1 <- round(anova(m1), 3) %>% as.data.frame()
+
+a.m1 %<>% dplyr::mutate(`Signif. codes` = case_when(`Pr(>F)` <= 0.001 ~ "***",
+                                                   `Pr(>F)` <= 0.01 ~ "**",
+                                                   `Pr(>F)` <= 0.05 ~ "*",
+                                                   `Pr(>F)` <= 0.1 ~ ".",
+                                                   `Pr(>F)` > 0.1 ~ " ",
+                                                   is.na(`Pr(>F)`) ~ " "))
+
+kbl(a.m1, caption = paste0("Analysis of Variance Table\n", "Response: ", resp)) %>%
+  # knitr::kable("html") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+
+f.m1 <- paste0(resp, " ~ Block + ACC + SEL + SOILvsSALT + CONvsANC + 
+    AvsC + PSvsSS + ACC:(SEL + SOILvsSALT + CONvsANC + AvsC + 
+    PSvsSS + Population) + (SEL + SOILvsSALT + CONvsANC):(AvsC + 
+    PSvsSS) + ACC:(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS + 
+    Population)")
+
 # ------------------------------------------------------------------------------
 
 
 # 2. Interaction with two component
 # ------------------------------------------------------------------------------
 
-m2 <- lm(terms(data[, resp] ~ Block
+m2 <- lm(terms(G11Heightcm ~ Block
                + ACC*AvsC,
                keep.order = F),
          data = data)
@@ -209,6 +234,9 @@ anova(m2)
 
 performance::check_model(m2)
 
+m2$call$formula
+
+f.m2 <- paste0(resp, " ~ Block + ACC * AvsC")
 
 
 # ------------------------------------------------------------------------------
@@ -237,23 +265,36 @@ anova(m3)
 
 performance::check_model(m3)
 
+f.m3 <- paste0(resp, " ~ Block + ACC * (AvsC + PSvsSS)")
+
 # 4. Interaction of more components
 # ------------------------------------------------------------------------------
 
-m4 <- lm(terms(G11Heightcm ~ Block  #Blocks
-             + SEL + SOILvsSALT + CONvsANC  #Selection contrasts
-             + AvsC + PSvsSS  #Population contrasts
-             +(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS),  #Interactions selection x population contrasts
-             keep.order = T), 
+m4 <- lm(as.formula(paste0(resp, " ~ Block + SEL + SOILvsSALT + CONvsANC + AvsC + PSvsSS  #Population contrasts +(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS)")), 
          data = data)
 
 anova(m4)
 
 performance::check_model(m4)
 
+f.m4 <- paste0(resp, " ~ Block + SEL + SOILvsSALT + CONvsANC + AvsC + PSvsSS +(SEL + SOILvsSALT + CONvsANC):(AvsC + PSvsSS)")
 
 
 # Visualisation of indices of models’ performance
 # ------------------------------------------------------------------------------
 
-plot(compare_performance(m1, m2, rank = TRUE))
+plot(compare_performance(m1, m2, m3, m4, rank = TRUE))
+
+test_performance(m1, m2, m3, m4) %>% as.data.frame()
+
+cp.df <- compare_performance(m1, m2, m3, m4, rank = TRUE) %>% as.data.frame()
+
+round_df <- function(df, digits) {
+  nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
+  
+  df[,nums] <- round(df[,nums], digits = digits)
+  
+  (df)
+}
+
+round_df(cp.df, digits=3)
